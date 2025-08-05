@@ -1,15 +1,8 @@
 import { useState,useContext,useEffect,createContext } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useParams } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
-
-import {MY_key} from './evn.js';
-
-import './App.css'
+import App from './App.jsx'
 import styled from 'styled-components'
-
-import List from './List.jsx'
-import Search from './Search.jsx'
-import Details from './Details.jsx'
 
 const mock_data ={
     'OL17834026W':{
@@ -293,87 +286,17 @@ const mock_data ={
 },
 }
 
-function App() {
-  const navigate = useNavigate();
-  const [list, setList] = useState([
-    'OL15358691W',
-    'OL16813053W',
-    'OL17834026W',
-    'OL20842226W'
+function Details(){
+  let {idNumber} = useParams();
+  let book = mock_data[idNumber]
 
-  ]); // list is in olid (open library id)
-
-  // useEffect(()=>{
-  //   console.log(MY_key)
-  //   const query = `
-  //   {
-  //     me {
-  //       user_books(
-  //         where: {has_review: {_eq: true}}
-  //         order_by: [
-  //           { date_added: desc },
-  //           { reviewed_at: desc }
-  //         ]
-  //       ) {
-  //         review_raw
-  //         rating
-  //         book {
-  //           title
-  //         }
-  //       }
-  //     }
-  //   }`;
-  //   fetch('https://api.hardcover.app/v1/graphql', {
-  //     headers: {
-  //       'content-type': 'application/json',
-  //       'Authorization': MY_key,
-
-  //       'Access-Control-Allow-Origin': '*',
-
-  //     },
-  //     body: JSON.stringify({ query }),
-  //     method: 'POST',
-  //   })
-  //   .then((response) => response.json())
-  //   .then(({ data }) => {
-  //     console.log('made it')
-  //     const reviews = data.me[0]['user_books'].map(review => {
-  //       // Just as an example of what you could do
-  //       const author = cached_contributors[0].author.name;
-  //       console.log("author!", author);
-  //     });
-  //   });
-  // }
-  //   ,[]);
-
-  return (
-  <>
-    <Link to="/">Home</Link>
-    <br></br>
-    <input type="text" id="newItem" size="25"/>
-
-    <button id="submit"
-        onClick={()=>{
-
-          let newItem=document.querySelector('#newItem');
-          let book ={};
-          for(let key in mock_data){
-            if(mock_data[key].title==newItem.value){
-              book = mock_data[key]
-            }
-          }
-          navigate(`/search/${newItem.value}`)
-          // navigate(`/olid/${book.key.slice(7)}`)
-          }}>Search</button>
-    <br></br>
-    <Routes>
-      <Route path='/' element={<List list={list}/>}/>
-      <Route path='/search/:searchterm' element={<Search list={list}/>}/>
-      <Route path='/olid/:idNumber' element={<Details />}/>
-    </Routes>
-  </>
-  )
+  return(<>
+    {/* <h2>Details</h2> */}
+    <h1>{book.title}</h1>
+    <img src={`https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`}/>
+    <p>{book.description}</p>
+    <div>{book.subjects.map((elm)=><p>{elm}</p>)}</div>
+  </>)
 }
 
-export default App
-// export {mock_data}
+export default Details

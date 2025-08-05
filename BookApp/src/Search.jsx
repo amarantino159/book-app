@@ -1,15 +1,10 @@
 import { useState,useContext,useEffect,createContext } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useParams } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
-
-import {MY_key} from './evn.js';
-
-import './App.css'
+import App from './App.jsx'
+import Card from './Card.jsx'
 import styled from 'styled-components'
 
-import List from './List.jsx'
-import Search from './Search.jsx'
-import Details from './Details.jsx'
 
 const mock_data ={
     'OL17834026W':{
@@ -292,88 +287,56 @@ const mock_data ={
     }
 },
 }
+function Search({list}){
+  const [data, setData] = useState([]);
+  // const headers = new Headers({
+  //   "User-Agent": "toy app for JS/React Class (amarantino159@gmail.com)"
+  // });
+  // const options = {
+  //   //method: 'GET',
+  //   headers: headers
+  // };
 
-function App() {
-  const navigate = useNavigate();
-  const [list, setList] = useState([
-    'OL15358691W',
-    'OL16813053W',
-    'OL17834026W',
-    'OL20842226W'
-
-  ]); // list is in olid (open library id)
-
-  // useEffect(()=>{
-  //   console.log(MY_key)
-  //   const query = `
-  //   {
-  //     me {
-  //       user_books(
-  //         where: {has_review: {_eq: true}}
-  //         order_by: [
-  //           { date_added: desc },
-  //           { reviewed_at: desc }
-  //         ]
-  //       ) {
-  //         review_raw
-  //         rating
-  //         book {
-  //           title
-  //         }
-  //       }
+  // list.forEach((book)=>{
+  //   useEffect(() => {
+  //   fetch(`https://openlibrary.org/works/${book}.json`)
+  //   // fetch(`https://openlibrary.org/works/OL17834026W.json`)
+  //   .then(res => res.json())
+  //   .then(jsond => setData((prev)=>[...prev,jsond]))
+  //   .then(()=>setData(data.sort((a,b)=>{
+  //     if(a.created.value.slice(0,4)>b.created.value.slice(0,4)){
+  //       return 1
   //     }
-  //   }`;
-  //   fetch('https://api.hardcover.app/v1/graphql', {
-  //     headers: {
-  //       'content-type': 'application/json',
-  //       'Authorization': MY_key,
+  //     else{
+  //       return -1
+  //     }
+  //   })))// custom sort to not have to worry about the async of fetches out of order
+  //   // .then(() => console.log(list)); // ask later why this does not console out the new populated list
+  //   }, [])
+  // });
+  let {searchterm} = useParams();
+  // console.log(list)
 
-  //       'Access-Control-Allow-Origin': '*',
+  useEffect(() => {
+    list.forEach((book)=>{
+    setData((prev)=>[...prev,mock_data[book]])
+    setData((prev)=>prev.sort((a,b)=>{
+      if(b.title==searchterm){
+        return 1
+      }
+      else{
+        return -1
+      }
+    }))// custom sort to not have to worry about the async of fetches out of order
 
-  //     },
-  //     body: JSON.stringify({ query }),
-  //     method: 'POST',
-  //   })
-  //   .then((response) => response.json())
-  //   .then(({ data }) => {
-  //     console.log('made it')
-  //     const reviews = data.me[0]['user_books'].map(review => {
-  //       // Just as an example of what you could do
-  //       const author = cached_contributors[0].author.name;
-  //       console.log("author!", author);
-  //     });
-  //   });
-  // }
-  //   ,[]);
+    })
+  },[]);
 
-  return (
-  <>
-    <Link to="/">Home</Link>
-    <br></br>
-    <input type="text" id="newItem" size="25"/>
-
-    <button id="submit"
-        onClick={()=>{
-
-          let newItem=document.querySelector('#newItem');
-          let book ={};
-          for(let key in mock_data){
-            if(mock_data[key].title==newItem.value){
-              book = mock_data[key]
-            }
-          }
-          navigate(`/search/${newItem.value}`)
-          // navigate(`/olid/${book.key.slice(7)}`)
-          }}>Search</button>
-    <br></br>
-    <Routes>
-      <Route path='/' element={<List list={list}/>}/>
-      <Route path='/search/:searchterm' element={<Search list={list}/>}/>
-      <Route path='/olid/:idNumber' element={<Details />}/>
-    </Routes>
-  </>
-  )
+  // console.log(data)
+  return(<>
+    {/* <h2>LIST</h2> */}
+    {data.map((book)=><Card book={book}/>)}
+  </>)
 }
 
-export default App
-// export {mock_data}
+export default Search
